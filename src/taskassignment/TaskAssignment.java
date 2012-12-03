@@ -1,5 +1,7 @@
 package taskassignment;
 
+import bruteforce.BruteForce;
+
 import common.Configuration;
 
 public class TaskAssignment {
@@ -11,6 +13,9 @@ public class TaskAssignment {
 		
 		Configuration config = Configuration.loadFromFile("test.txt");
 		System.out.println(config);
+		BruteForce bt = new BruteForce(config);
+		System.out.println(bt.compute());
+		System.out.println(bt.getJobsByMachines());
 	}
 
 }

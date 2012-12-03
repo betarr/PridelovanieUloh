@@ -6,7 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.StringTokenizer;
@@ -30,6 +32,7 @@ public class Configuration {
 			jp.setJob(jobIndex);
 			jp.setMachine(machineIndex);
 			jp.setCost(cost);
+			jp.setIndex(i);
 			config.addJobPart(jp);
 		}
 		
@@ -38,11 +41,12 @@ public class Configuration {
 	
 	public static void saveTofile(final Configuration config, final String fileName) {
 		StringBuffer sb = new StringBuffer();
-		sb.append(config.numberOfMachines).append(System.lineSeparator());
+		sb.append(config.numberOfMachines).append(Utils.LINE_SEPARATOR);
 		for (JobPart jp : config.jobsParts) {
 			sb.append(jp.getJob()).append(" ")
 					.append(jp.getMachine()).append(" ")
-					.append(jp.getCost()).append(System.lineSeparator());
+					.append(jp.getCost()).append(" ")
+					.append(jp.getIndex()).append(Utils.LINE_SEPARATOR);
 		}
 		
 		try {
@@ -72,6 +76,7 @@ public class Configuration {
 					jb.setJob(Integer.parseInt(st.nextToken()));
 					jb.setMachine(Integer.parseInt(st.nextToken()));
 					jb.setCost(Integer.parseInt(st.nextToken()));
+					jb.setIndex(Integer.parseInt(st.nextToken()));
 					config.addJobPart(jb);
 				}
 			}
@@ -105,14 +110,44 @@ public class Configuration {
 	public void setJobsParts(List<JobPart> jobsParts) {
 		this.jobsParts = jobsParts;
 	}
+	
+	public int getSumOfCosts() {
+		return Utils.getTotalCostOfJobParts(this.jobsParts);
+	}
+	
+	public Map<Integer, List<JobPart>> getJobsPartsAsMapByMachine() {
+		Map<Integer, List<JobPart>> result = new HashMap<Integer, List<JobPart>>();
+		for (JobPart jp : this.jobsParts) {
+			int machine = jp.getMachine();
+			if (result.get(machine) == null) {
+				List<JobPart> jobsPartList = new ArrayList<JobPart>();
+				result.put(machine, jobsPartList);
+			}
+			result.get(machine).add(jp);
+		}
+		return result;
+	}
+	
+	public Map<Integer, List<JobPart>> getJobsPartsAsMapByJobs() {
+		Map<Integer, List<JobPart>> result = new HashMap<Integer, List<JobPart>>();
+		for (JobPart jp : this.jobsParts) {
+			int job = jp.getJob();
+			if (result.get(job) == null) {
+				List<JobPart> jobsPartList = new ArrayList<JobPart>();
+				result.put(job, jobsPartList);
+			}
+			result.get(job).add(jp);
+		}
+		return result;
+	}
 
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append(this.getClass().getName()).append(System.lineSeparator());
-		sb.append("numberOfMachines: ").append(this.numberOfMachines).append(System.lineSeparator());
-		sb.append("Job parts:").append(System.lineSeparator());
+		sb.append(this.getClass().getName()).append(Utils.LINE_SEPARATOR);
+		sb.append("numberOfMachines: ").append(this.numberOfMachines).append(Utils.LINE_SEPARATOR);
+		sb.append("Job parts:").append(Utils.LINE_SEPARATOR);
 		for (JobPart jp : this.jobsParts) {
-			sb.append(jp).append(System.lineSeparator());
+			sb.append(jp).append(Utils.LINE_SEPARATOR);
 		}
 		return sb.toString();
 	}
