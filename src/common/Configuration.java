@@ -116,29 +116,11 @@ public class Configuration {
 	}
 	
 	public Map<Integer, List<JobPart>> getJobsPartsAsMapByMachine() {
-		Map<Integer, List<JobPart>> result = new HashMap<Integer, List<JobPart>>();
-		for (JobPart jp : this.jobsParts) {
-			int machine = jp.getMachine();
-			if (result.get(machine) == null) {
-				List<JobPart> jobsPartList = new ArrayList<JobPart>();
-				result.put(machine, jobsPartList);
-			}
-			result.get(machine).add(jp);
-		}
-		return result;
+		return Utils.getJobPartListAsMapByMachine(this.jobsParts);
 	}
 	
 	public Map<Integer, List<JobPart>> getJobsPartsAsMapByJobs() {
-		Map<Integer, List<JobPart>> result = new HashMap<Integer, List<JobPart>>();
-		for (JobPart jp : this.jobsParts) {
-			int job = jp.getJob();
-			if (result.get(job) == null) {
-				List<JobPart> jobsPartList = new ArrayList<JobPart>();
-				result.put(job, jobsPartList);
-			}
-			result.get(job).add(jp);
-		}
-		return result;
+		return Utils.getJobPartListAsMapByJob(this.jobsParts);
 	}
 
 	public String toString() {

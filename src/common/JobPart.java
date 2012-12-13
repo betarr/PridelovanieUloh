@@ -7,7 +7,23 @@ public class JobPart {
 	private int cost;
 	
 	private int index;
-	private int startTime = -1;
+	private int startTime;
+	
+	public JobPart() {
+		this.setJob(-1);
+		this.setMachine(-1);
+		this.setCost(-1);
+		this.setIndex(-1);
+		this.setStartTime(-1);
+	}
+	
+	public JobPart(JobPart jobPart) {
+		this.setJob(jobPart.getJob());
+		this.setMachine(jobPart.getMachine());
+		this.setCost(jobPart.getCost());
+		this.setIndex(jobPart.getIndex());
+		this.setStartTime(jobPart.getStartTime());
+	}
 
 	public int getJob() {
 		return job;
