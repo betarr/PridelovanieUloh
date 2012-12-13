@@ -26,8 +26,8 @@ public class BruteForce {
 		
 		for (List<JobPart> listOfJobParts : combinationsOfJobParts) {
 			Map<Integer, List<JobPart>> combinationsOfJobPartByMachine = Utils.getJobPartListAsMapByMachine(listOfJobParts);
-			if (jeTatoKonfiguraciaNekonfliktna(combinationsOfJobPartByMachine)) {
-				int combinationScore = ziskajSkoreKonfiguracie(combinationsOfJobPartByMachine);
+			if (isCombinationNotConflicted(combinationsOfJobPartByMachine)) {
+				int combinationScore = getScoreOfCombination(combinationsOfJobPartByMachine);
 				if (bestCombinationScore == -1 || combinationScore < bestCombinationScore) {
 					bestCombinationScore = combinationScore;
 					bestCombination = combinationsOfJobPartByMachine;
@@ -40,7 +40,19 @@ public class BruteForce {
 			System.out.println();
 		}
 		
-		Result result = pretransformujNajlepsiuKombinaciuNaResult(bestCombination);
+		Result result = transformCombinationToResult(bestCombination);
 		return result;
-	}	
+	}
+	
+	private boolean isCombinationNotConflicted(Map<Integer, List<JobPart>> jobPartCombination) {
+		return false;
+	}
+	
+	private int getScoreOfCombination(Map<Integer, List<JobPart>> jobPartCombination) {
+		return -1;
+	}
+	
+	private Result transformCombinationToResult(Map<Integer, List<JobPart>> jobPartCombination) {
+		return null;
+	}
 }
