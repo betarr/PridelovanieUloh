@@ -4,8 +4,14 @@ public class JobPart {
 
 	private int job;
 	private int machine;
+	/**
+	 * Trvanie ulohy.
+	 */
 	private int cost;
 	
+	/**
+	 * Poradie.
+	 */
 	private int index;
 	private int startTime;
 	
@@ -76,6 +82,40 @@ public class JobPart {
 		sb.append("start time: ").append(this.startTime);
 		sb.append("]");
 		return sb.toString();
+	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + cost;
+		result = prime * result + index;
+		result = prime * result + job;
+		result = prime * result + machine;
+		result = prime * result + startTime;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		JobPart other = (JobPart) obj;
+		if (cost != other.cost)
+			return false;
+		if (index != other.index)
+			return false;
+		if (job != other.job)
+			return false;
+		if (machine != other.machine)
+			return false;
+		if (startTime != other.startTime)
+			return false;
+		return true;
 	}
 	
 }

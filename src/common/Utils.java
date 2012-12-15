@@ -8,15 +8,6 @@ import java.util.Map;
 public class Utils {
 	public static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
-	public static JobPart getLatestJobPartOnMachine(List<JobPart> jobPartList) {
-		JobPart result = null;
-		int maxStartTime = 0;
-		for (JobPart jp : jobPartList) {
-			result = (jp.getStartTime() > maxStartTime) ? jp : result;
-		}
-		return result;
-	}
-
 	public static int getTotalCostOfJobParts(List<JobPart> jobPartList) {
 		int result = 0;
 		for (JobPart jp : jobPartList) {
@@ -73,6 +64,19 @@ public class Utils {
 	public static Map<Integer, List<JobPart>> getJobPartListAsMapByJob(List<JobPart> jobPartList) {
 		Map<Integer, List<JobPart>> result = new HashMap<Integer, List<JobPart>>();
 		for (JobPart jp : jobPartList) {
+			int job = jp.getJob();
+			if (result.get(job) == null) {
+				List<JobPart> jobsPartList = new ArrayList<JobPart>();
+				result.put(job, jobsPartList);
+			}
+			result.get(job).add(jp);
+		}
+		return result;
+	}
+	
+	public static Map<Integer, List<JobPart>> getJobPartListAsMapByMachine(List<JobPart> jobPartList) {
+		Map<Integer, List<JobPart>> result = new HashMap<Integer, List<JobPart>>();
+		for (JobPart jp : jobPartList) {
 			int machine = jp.getMachine();
 			if (result.get(machine) == null) {
 				List<JobPart> jobsPartList = new ArrayList<JobPart>();
@@ -83,16 +87,30 @@ public class Utils {
 		return result;
 	}
 	
-	public static Map<Integer, List<JobPart>> getJobPartListAsMapByMachine(List<JobPart> jobPartList) {
-		Map<Integer, List<JobPart>> result = new HashMap<Integer, List<JobPart>>();
-		for (JobPart jp : jobPartList) {
-			int job = jp.getJob();
-			if (result.get(job) == null) {
-				List<JobPart> jobsPartList = new ArrayList<JobPart>();
-				result.put(job, jobsPartList);
-			}
-			result.get(job).add(jp);
+	public static boolean areJobPartsInTimeConflict(JobPart jp1, JobPart jp2) {
+		if (jp1.getStartTime() == jp2.getStartTime()) {
+			return true;
 		}
-		return result;
+		if (jp1.getStartTime() < jp2.getStartTime()
+				&& jp1.getStartTime()+jp1.getCost() > jp2.getStartTime()) {
+			return true;
+		}
+		if (jp2.getStartTime() < jp1.getStartTime()
+				&& jp2.getStartTime()+jp2.getCost() > jp1.getStartTime()) {
+			return true;
+		}
+		return false;
+	}
+
+	public static boolean areJobPartsInJobsOrderConflict(JobPart jp1,
+			JobPart jp2) {
+		if (Utils.areJobPartsInTimeConflict(jp1, jp2)) {
+			return true;
+		}
+		if (jp1.getIndex() < jp2.getIndex()) {
+			return jp1.getStartTime() > jp2.getStartTime();
+		} else {
+			return jp2.getStartTime() > jp1.getStartTime();
+		}
 	}
 }
