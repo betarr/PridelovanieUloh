@@ -58,33 +58,28 @@ public class Configuration {
 		}
 	}
 	
-	public static Configuration loadFromFile(String fileName) {
-		try {
-			Configuration config = new Configuration();
-			
-			Scanner scanner = new Scanner(new File(fileName));
-			boolean firstRowReaded = false;
-			while (scanner.hasNextLine()) {
-				String row = scanner.nextLine();
-				if (!firstRowReaded) {
-					config.setNumberOfMachines(Integer.parseInt(row));
-					firstRowReaded = true;
-				} else {
-					StringTokenizer st = new StringTokenizer(row, " ");
-					JobPart jb = new JobPart();
-					jb.setJob(Integer.parseInt(st.nextToken()));
-					jb.setMachine(Integer.parseInt(st.nextToken()));
-					jb.setCost(Integer.parseInt(st.nextToken()));
-					jb.setIndex(Integer.parseInt(st.nextToken()));
-					config.addJobPart(jb);
-				}
+	public static Configuration loadFromFile(String fileName) throws FileNotFoundException, NumberFormatException {
+		Configuration config = new Configuration();
+		
+		Scanner scanner = new Scanner(new File(fileName));
+		boolean firstRowReaded = false;
+		while (scanner.hasNextLine()) {
+			String row = scanner.nextLine();
+			if (!firstRowReaded) {
+				config.setNumberOfMachines(Integer.parseInt(row));
+				firstRowReaded = true;
+			} else {
+				StringTokenizer st = new StringTokenizer(row, " ");
+				JobPart jb = new JobPart();
+				jb.setJob(Integer.parseInt(st.nextToken()));
+				jb.setMachine(Integer.parseInt(st.nextToken()));
+				jb.setCost(Integer.parseInt(st.nextToken()));
+				jb.setIndex(Integer.parseInt(st.nextToken()));
+				config.addJobPart(jb);
 			}
-			scanner.close();
-			return config;
-		} catch (FileNotFoundException e) {
-			System.err.println("File " + fileName + " not found!");
-			return null;
 		}
+		scanner.close();
+		return config;
 	}
 	
 	public void addJobPart(JobPart jobPart) {

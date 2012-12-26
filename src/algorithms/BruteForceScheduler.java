@@ -1,4 +1,4 @@
-package bruteforce;
+package algorithms;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,17 +11,17 @@ import common.JobPart;
 import common.Result;
 import common.Utils;
 
-public class BruteForce {
+public class BruteForceScheduler extends Scheduler {
 
 	private Configuration config;
 	private int sumOfCosts;
 	
-	public BruteForce(Configuration config) {
+	public BruteForceScheduler(Configuration config) {
 		this.config = config;
 		this.sumOfCosts = this.config.getSumOfCosts();
 	}
 	
-	public Result compute() {
+	public Result schedule() {
 		List<List<JobPart>> combinationsOfJobParts = Utils.getAllCombinationsOfJobPartByStartTime(this.sumOfCosts, this.config.getJobsParts());
 		
 		Map<Integer, List<JobPart>> bestCombinationByMachine = null;

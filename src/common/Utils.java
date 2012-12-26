@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class Utils {
 	public static final String LINE_SEPARATOR = System.getProperty("line.separator");
@@ -112,5 +113,36 @@ public class Utils {
 		} else {
 			return jp2.getStartTime() > jp1.getStartTime();
 		}
+	}
+
+	public static Map<Integer, List<JobPart>> getSortedJobPartsInMapByIndex(Map<Integer, List<JobPart>> jobPartMap) {
+		Set<Integer> indexes = jobPartMap.keySet();
+		for (Integer index : indexes) {
+			List<JobPart> jobPartList = jobPartMap.get(index);
+			jobPartMap.put(index, Utils.getJobListSortedByIndex(jobPartList));
+		}
+		return jobPartMap;
+	}
+	
+	private static List<JobPart> getJobListSortedByIndex(List<JobPart> jobPartList) {
+		List<JobPart> result = new ArrayList<JobPart>();
+		while (!jobPartList.isEmpty()) {
+			JobPart minJobPart = Utils.getFirstJobFromListByIndex(jobPartList);
+			result.add(minJobPart);
+			jobPartList.remove(minJobPart);
+		}
+		return result;
+	}
+
+	private static JobPart getFirstJobFromListByIndex(List<JobPart> jobPartList) {
+		int minIndex = Integer.MAX_VALUE;
+		JobPart result = null;
+		for (JobPart jobPart : jobPartList) {
+			if (jobPart.getIndex() < minIndex) {
+				result = jobPart;
+				minIndex = jobPart.getIndex();
+			}
+		}
+		return result;
 	}
 }
