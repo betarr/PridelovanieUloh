@@ -1,5 +1,6 @@
 package sk.sochuliak.taskassignment;
 
+import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -9,14 +10,15 @@ import sk.sochuliak.timeassignment.algorithms.ActiveBruteScheduler;
 import sk.sochuliak.timeassignment.algorithms.ActiveScheduler;
 import sk.sochuliak.timeassignment.algorithms.BruteForceScheduler;
 import sk.sochuliak.timeassignment.common.Configuration;
+import sk.sochuliak.timeassignment.common.Utils;
 
 
 
 public class TaskAssignment {
 
-	public static void main(String[] args) {
-		int num = 20;
-		Configuration config = Configuration.generate(num, num, num, num);
+	public static void main2(String[] args) {
+//		int num = 20;
+//		Configuration config = Configuration.generate(num, num, num, num);
 //		Configuration.saveTofile(config, "test.txt");
 		
 //		String configFileName = "testInput.txt";
@@ -32,12 +34,95 @@ public class TaskAssignment {
 //		}
 		
 //		TaskAssignment.runBruteScheduler(config);
-		TaskAssignment.runActiveBruteScheduler(config);
-		TaskAssignment.runActiveScheduler(config);
+//		TaskAssignment.runActiveBruteScheduler(config);
+//		TaskAssignment.runActiveScheduler(config);
 	}
 	
-	public static void main2(String[] args) {
+	public static void main(String[] args) {
 		List<String> argsList = Arrays.asList(args);
+		
+		String filePath = "";
+		try {
+			Configuration config = null;
+			
+			boolean configCommand = argsList.get(0).equals("-config");
+			boolean helpCommand = argsList.get(0).equals("-help");
+			
+			if (configCommand) {
+				int fromFileCommandIndex = TaskAssignment.getIndexOfStringInList(argsList, "-file");
+				int generateCommandIndex = TaskAssignment.getIndexOfStringInList(argsList, "-generate");
+				
+				if (fromFileCommandIndex != -1) {
+					filePath = argsList.get(fromFileCommandIndex+1);
+					config = Configuration.loadFromFile(filePath);
+				} else if (generateCommandIndex != -1) {
+					int numOfMachines = Integer.parseInt(argsList.get(generateCommandIndex+1));
+					int numOfJobs = Integer.parseInt(argsList.get(generateCommandIndex+2));
+					int numOfJobParts = Integer.parseInt(argsList.get(generateCommandIndex+3));
+					int maxCost = Integer.parseInt(argsList.get(generateCommandIndex+4));
+					config = Configuration.generate(numOfMachines, numOfJobs, numOfJobParts, maxCost);
+				} else {
+					TaskAssignment.printOutWrongText();
+					return;
+				}
+				boolean bruteCommand = argsList.contains("-brute");
+				boolean activeBrute = argsList.contains("-activebrute");
+				boolean active = argsList.contains("-active");
+				
+				if (bruteCommand) {
+					TaskAssignment.runBruteScheduler(config);
+				}
+				if (activeBrute) {
+					TaskAssignment.runActiveBruteScheduler(config);
+				}
+				if (active) {
+					TaskAssignment.runActiveScheduler(config);
+				}
+				
+				if (!bruteCommand && !activeBrute && !active) {
+					TaskAssignment.printOutWrongText();
+				}
+			} else if (helpCommand) {
+				TaskAssignment.printOutHelpText();
+			}
+		} catch (ArrayIndexOutOfBoundsException e) {
+			TaskAssignment.printOutWrongText();
+		} catch (NumberFormatException e) {
+			TaskAssignment.printOutWrongText();
+		} catch (FileNotFoundException e) {
+			TaskAssignment.printOutFileNotFoundText(filePath);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void printOutHelpText() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("TASK ASSIGNMENT").append(Utils.LINE_SEPARATOR).append(Utils.LINE_SEPARATOR);
+		sb.append("Using:").append(Utils.LINE_SEPARATOR)
+			.append(Utils.TAB).append("-config").append(Utils.LINE_SEPARATOR)
+			.append(Utils.TAB).append("[-generate numberOfMachines numOfJobs numOfJobParts maximalCost]").append(Utils.LINE_SEPARATOR)
+			.append(Utils.TAB).append("[-file fileName]").append(Utils.LINE_SEPARATOR).append(Utils.LINE_SEPARATOR)
+			.append(Utils.TAB).append("-help");
+		
+		System.out.println(sb.toString());
+	}
+	
+	private static void printOutWrongText() {
+		System.err.println("I am afraid you do not know how to use me. If you need help, use switcher -help.");
+	}
+	
+	private static void printOutFileNotFoundText(String filePath) {
+		System.err.println("File " + filePath + " not found.");
+	}
+	
+	private static int getIndexOfStringInList(List<String> list, String string) {
+		for (int i = 0; i < list.size(); i++) {
+			if (string.equals(list.get(i))) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	private static void runBruteScheduler(Configuration config) {

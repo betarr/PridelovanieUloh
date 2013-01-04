@@ -18,6 +18,7 @@ import sk.sochuliak.timeassignment.algorithms.BruteForceScheduler;
 
 public class Utils {
 	public static final String LINE_SEPARATOR = System.getProperty("line.separator");
+	public static final String TAB = "\t";
 
 	public static int getTotalCostOfJobParts(List<JobPart> jobPartList) {
 		int result = 0;
