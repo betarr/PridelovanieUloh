@@ -27,7 +27,6 @@ public class ActiveScheduler extends Scheduler {
 
 	@Override
 	public Result schedule() {
-		System.out.println(this.graph);
 		Result result = new Result();
 		
 		List<JobPart> omega = this.getListOfFistJobPartByJob(this.jobPartsByJob);
@@ -54,7 +53,6 @@ public class ActiveScheduler extends Scheduler {
 			JobPart toResult = (omega2.size()==1) ? omega2.get(0) : this.getBestJobPartToResult(omega2, this.graph);
 			result.addToResult(toResult, omega, rList);
 			this.graph.addYEdgesToGraph(toResult);
-			System.out.println(this.graph);
 			List<JobPart> newOmega = new ArrayList<JobPart>();
 			for (JobPart jp : omega) {
 				if (jp.equals(toResult)) {
@@ -128,8 +126,12 @@ public class ActiveScheduler extends Scheduler {
 			Node fromNode = currentGraph.getJPNodeByJobPart(jobPart);
 			List<Node> allNodesByMachine = currentGraph.getAllNodesByMachine(jobPart.getMachine());
 			allNodesByMachine.remove(fromNode);
+			List<Node> reallyAddedEdgeToNodes = new ArrayList<Node>();
 			for (Node toNode : allNodesByMachine) {
-				currentGraph.setYEdgeBetweenNodes(fromNode, toNode);
+				if (toNode.getyEdges().size() == 0) {
+					currentGraph.setYEdgeBetweenNodes(fromNode, toNode);
+					reallyAddedEdgeToNodes.add(toNode);
+				}
 			}
 
 			int currentLB = this.calculateLBForGraph(currentGraph);
@@ -138,7 +140,7 @@ public class ActiveScheduler extends Scheduler {
 				minLBIndex = i;
 			}
 			
-			for (Node toNode : allNodesByMachine) {
+			for (Node toNode : reallyAddedEdgeToNodes) {
 				currentGraph.removeYEdgeBetweenNodes(fromNode, toNode);
 			}
 		}
@@ -151,7 +153,7 @@ public class ActiveScheduler extends Scheduler {
 		int maxLB = 0;
 		
 		int numberOfMachines = this.config.getNumberOfMachines();
-		for (int i = 1; i < numberOfMachines; i++) {
+		for (int i = 1; i <= numberOfMachines; i++) {
 			List<Node> nodesByMachine = currentGraph.getAllNodesByMachine(i);
 			if (nodesByMachine.size() == 0) {
 				continue;

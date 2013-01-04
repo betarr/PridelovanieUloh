@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import algorithms.Scheduler;
@@ -14,6 +15,7 @@ import common.Result;
 public class ActiveSchedulerTest {
 
 	@Test
+	@Ignore
 	public void testSchedule() {
 		String configFileName = "testInput.txt";
 		Configuration config;

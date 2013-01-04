@@ -62,7 +62,7 @@ public class Graph {
 		Edge edgeToRemove = null;
 		for (Edge edge : fromNode.getyEdges()) {
 			if (edge.getToNode().equals(toNode)) {
-				edgeToRemove = null;
+				edgeToRemove = edge;
 				break;
 			}
 		}
