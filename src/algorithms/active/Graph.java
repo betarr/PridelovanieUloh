@@ -1,6 +1,7 @@
 package algorithms.active;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,10 +26,42 @@ public class Graph {
 		}
 	}
 	
-//	public Graph(Graph graph) {
-//		Node newU = new Node();
-//		Node newV = new Node();
-//	}
+	public Graph(Graph graph, Map<Integer, List<JobPart>> jobPartMap) {
+		this.u = new Node();
+		this.u.setU(true);
+		this.v = new Node();
+		this.v.setV(true);
+		
+		Map<Integer, List<JobPart>> jobPartMapCopy = new HashMap<Integer, List<JobPart>>();
+		for (Integer jobIndex : jobPartMap.keySet()) {
+			List<JobPart> jobPartList = new ArrayList<JobPart>();
+			for (JobPart jp : jobPartMap.get(jobIndex)) {
+				jobPartList.add(new JobPart(jp));
+			}
+			jobPartMapCopy.put(jobIndex, jobPartList);
+		}
+		
+		for (Integer jobIndex : jobPartMapCopy.keySet()) {
+			this.addXPathInGraph(jobIndex, jobPartMapCopy.get(jobIndex));
+		}
+		
+		List<Node> nodes = new ArrayList<Node>();
+		nodes.add(graph.getU());
+		while (!nodes.isEmpty()) {
+			Node node = nodes.get(0);
+			nodes.remove(node);
+			
+			for (Edge edge : node.getyEdges()) {
+				Node fromNode = this.getJPNodeByJobPart(edge.getFromNode().getJobPart());
+				Node toNode = this.getJPNodeByJobPart(edge.getToNode().getJobPart());
+				this.setYEdgeBetweenNodes(fromNode, toNode);
+			}
+			
+			for (Edge edge : node.getxEdges()) {
+				nodes.add(edge.getToNode());
+			}
+		}
+	}
 
 	private void addXPathInGraph(Integer jobIndex, List<JobPart> jobPartList) {
 		Edge lastAddedEdge = new Edge();

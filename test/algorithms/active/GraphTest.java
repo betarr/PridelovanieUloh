@@ -188,12 +188,42 @@ public class GraphTest {
 		assertEquals(expectedCostToV, actualCostToV);
 	}
 	
+	@Test
+	public void testCopyConstructor() {
+		String fileName = "testInput.txt";
+		Graph graph = this.buildGraphFromConfigFile(fileName);
+		Configuration config = this.getConfigurationFromFile(fileName);
+		
+		JobPart jp = new JobPart();
+		jp.setJob(2);
+		jp.setMachine(3);
+		jp.setCost(3);
+		jp.setIndex(2);
+		Node fromNode = graph.getJPNodeByJobPart(jp);
+		
+		JobPart jp2 = new JobPart();
+		jp2.setJob(1);
+		jp2.setMachine(3);
+		jp2.setCost(2);
+		jp2.setIndex(2);
+		Node toNode = graph.getJPNodeByJobPart(jp2);
+		graph.setYEdgeBetweenNodes(fromNode, toNode);
+		
+		Graph newGraph = new Graph(graph, config.getJobsPartsAsMapByJobs());
+		assertEquals(graph.toString().length(), newGraph.toString().length());
+	}
+	
 	private Graph buildGraphFromConfigFile(String configFileName) {
+		Configuration config = this.getConfigurationFromFile(configFileName);
+		Map<Integer, List<JobPart>> sortedJobPartsByJob = Utils.getSortedJobPartsInMapByIndex(config.getJobsPartsAsMapByJobs());
+		return new Graph(sortedJobPartsByJob);
+	}
+	
+	private Configuration getConfigurationFromFile(String configFileName) {
 		Configuration config;
 		try {
 			config = Configuration.loadFromFile(configFileName);
-			Map<Integer, List<JobPart>> sortedJobPartsByJob = Utils.getSortedJobPartsInMapByIndex(config.getJobsPartsAsMapByJobs());
-			return new Graph(sortedJobPartsByJob);
+			return config;
 		} catch (NumberFormatException e) {
 			System.err.println("File " + configFileName + " is in wrong format.");
 			Assert.fail("File " + configFileName + " is in wrong format.");

@@ -4,25 +4,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import algorithms.Scheduler;
-
 import common.Configuration;
 import common.JobPart;
 import common.Result;
 import common.Utils;
 
-public class ActiveScheduler extends Scheduler {
+public class ActiveScheduler extends ActiveSchedulerAbstract {
 	
-	private Configuration config;
-	
-	private Map<Integer, List<JobPart>> jobPartsByJob;
 	private Graph graph;
+	private Map<Integer, List<JobPart>> jobPartsByJob;
 	
 	public ActiveScheduler(Configuration config) {
-		this.config = config;
+		this.setConfig(config);
 		
-		this.jobPartsByJob = Utils.getSortedJobPartsInMapByIndex(this.config.getJobsPartsAsMapByJobs());
-		this.graph = new Graph(this.jobPartsByJob);
+		this.jobPartsByJob = Utils.getSortedJobPartsInMapByIndex(this.getConfig().getJobsPartsAsMapByJobs());
+		this.setGraph(new Graph(this.jobPartsByJob));
 	}
 
 	@Override
@@ -30,7 +26,7 @@ public class ActiveScheduler extends Scheduler {
 		Result result = new Result();
 		
 		List<JobPart> omega = this.getListOfFistJobPartByJob(this.jobPartsByJob);
-		List<Integer> rList = this.getRForJobPartsInOmega(omega);
+		List<Integer> rList = this.getRForJobPartsInOmega(omega, this.graph);
 		
 		while (!omega.isEmpty()) {
 			if (omega.size() != rList.size()) {
@@ -50,14 +46,14 @@ public class ActiveScheduler extends Scheduler {
 			
 			List<JobPart> omega2 = this.getOmega2JobParts(omega, rList, minT, minI);
 			
-			JobPart toResult = (omega2.size()==1) ? omega2.get(0) : this.getBestJobPartToResult(omega2, this.graph);
+			JobPart toResult = (omega2.size()==1) ? omega2.get(0) : this.getBestJobPartToResult(omega2, this.getGraph());
 			result.addToResult(toResult, omega, rList);
-			this.graph.addYEdgesToGraph(toResult);
+			this.getGraph().addYEdgesToGraph(toResult);
 			List<JobPart> newOmega = new ArrayList<JobPart>();
 			for (JobPart jp : omega) {
 				if (jp.equals(toResult)) {
-					Node jpNode = graph.getJPNodeByJobPart(jp);
-					Node nextNode = graph.getNodeSuccessorOnXEdge(jpNode);
+					Node jpNode = this.getGraph().getJPNodeByJobPart(jp);
+					Node nextNode = this.getGraph().getNodeSuccessorOnXEdge(jpNode);
 					if (!nextNode.isV()) {
 						newOmega.add(nextNode.getJobPart());
 					}
@@ -65,58 +61,13 @@ public class ActiveScheduler extends Scheduler {
 					newOmega.add(jp);
 				}
 			}
-			List<Integer> newRList = this.getRForJobPartsInOmega(newOmega);
+			List<Integer> newRList = this.getRForJobPartsInOmega(newOmega, this.graph);
 			omega = newOmega;
 			rList = newRList;
 		}
 		return result;
 	}
 
-	private List<JobPart> getListOfFistJobPartByJob(
-			Map<Integer, List<JobPart>> jobPartsByJob2) {
-		
-		List<JobPart> result = new ArrayList<JobPart>();
-		for (List<JobPart> jobPartList : jobPartsByJob2.values()) {
-			JobPart jp = jobPartList.get(0);
-			if (jp != null) {
-				result.add(jp);
-			}
-		}
-		return result;
-	}
-	
-	private List<Integer> getRForJobPartsInOmega(List<JobPart> omega) {
-		List<Integer> rList = new ArrayList<Integer>();
-		for (JobPart jp : omega) {
-			Integer longestPath = this.graph.getLongestCostFromStartToNodeWithJobPart(jp);
-			rList.add(longestPath);
-		}
-		return rList;
-	}
-	
-	private List<Integer> getTForJobPartsInOmega(List<JobPart> omega, List<Integer> rList) {
-		List<Integer> tList = new ArrayList<Integer>();
-		for (int i = 0; i < omega.size(); i++) {
-			int r = rList.get(i);
-			int cost = omega.get(i).getCost();
-			tList.add(r + cost);
-		}
-		return tList;
-	}
-	
-	private List<JobPart> getOmega2JobParts(List<JobPart> omega, List<Integer> rList, int minT, int minI) {
-		List<JobPart> omega2 = new ArrayList<JobPart>();
-		for (int i = 0; i < omega.size(); i++) {
-			JobPart jp = omega.get(i);
-			if (jp.getMachine() == minI) {
-				if (rList.get(i) < minT) {
-					omega2.add(jp);
-				}
-			}
-		}
-		return omega2;
-	}
-	
 	private JobPart getBestJobPartToResult(List<JobPart> omega2, Graph currentGraph) {
 		int minLB = -1;
 		int minLBIndex = -1;
@@ -152,7 +103,7 @@ public class ActiveScheduler extends Scheduler {
 		int criticalPathCost = currentGraph.getCostOfCriticalPath();
 		int maxLB = 0;
 		
-		int numberOfMachines = this.config.getNumberOfMachines();
+		int numberOfMachines = this.getConfig().getNumberOfMachines();
 		for (int i = 1; i <= numberOfMachines; i++) {
 			List<Node> nodesByMachine = currentGraph.getAllNodesByMachine(i);
 			if (nodesByMachine.size() == 0) {
@@ -182,6 +133,59 @@ public class ActiveScheduler extends Scheduler {
 			ds.add(r, delta, d, jp.getCost());
 		}
 		return ds.calculateDelay();
+	}
+	
+//	private List<Integer> getRForJobPartsInOmega(List<JobPart> omega) {
+//		List<Integer> rList = new ArrayList<Integer>();
+//		for (JobPart jp : omega) {
+//			Integer longestPath = this.getGraph().getLongestCostFromStartToNodeWithJobPart(jp);
+//			rList.add(longestPath);
+//		}
+//		return rList;
+//	}
+	
+//	private List<JobPart> getListOfFistJobPartByJob(
+//			Map<Integer, List<JobPart>> jobPartsByJob2) {
+//		
+//		List<JobPart> result = new ArrayList<JobPart>();
+//		for (List<JobPart> jobPartList : jobPartsByJob2.values()) {
+//			JobPart jp = jobPartList.get(0);
+//			if (jp != null) {
+//				result.add(jp);
+//			}
+//		}
+//		return result;
+//	}
+	
+//	private List<Integer> getTForJobPartsInOmega(List<JobPart> omega, List<Integer> rList) {
+//		List<Integer> tList = new ArrayList<Integer>();
+//		for (int i = 0; i < omega.size(); i++) {
+//			int r = rList.get(i);
+//			int cost = omega.get(i).getCost();
+//			tList.add(r + cost);
+//		}
+//		return tList;
+//	}
+	
+//	private List<JobPart> getOmega2JobParts(List<JobPart> omega, List<Integer> rList, int minT, int minI) {
+//		List<JobPart> omega2 = new ArrayList<JobPart>();
+//		for (int i = 0; i < omega.size(); i++) {
+//			JobPart jp = omega.get(i);
+//			if (jp.getMachine() == minI) {
+//				if (rList.get(i) < minT) {
+//					omega2.add(jp);
+//				}
+//			}
+//		}
+//		return omega2;
+//	}
+	
+	public Graph getGraph() {
+		return graph;
+	}
+
+	public void setGraph(Graph graph) {
+		this.graph = graph;
 	}
 
 }

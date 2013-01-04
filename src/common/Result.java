@@ -18,6 +18,18 @@ public class Result {
 	public Result() {
 		this.result = new HashMap<Integer, List<JobPart>>();
 	}
+	
+	public Result(Result result) {
+		this();
+		Map<Integer, List<JobPart>> resultMap = result.getResult();
+		for (Integer machineIndex : resultMap.keySet()) {
+			List<JobPart> jobPartList = new ArrayList<JobPart>();
+			for (JobPart jp : resultMap.get(machineIndex)) {
+				jobPartList.add(new JobPart(jp));
+			}
+			this.result.put(machineIndex, jobPartList);
+		}
+	}
 
 	public Map<Integer, List<JobPart>> getResult() {
 		return result;
@@ -43,6 +55,15 @@ public class Result {
 		this.result.put(jobPart.getMachine(), jobPartList);
 	}
 	
+	public void addToResult(JobPart jobPart) {
+		List<JobPart> jobPartList = this.result.get(jobPart.getMachine());
+		if (jobPartList == null) {
+			jobPartList = new ArrayList<JobPart>();
+		}
+		jobPartList.add(jobPart);
+		this.result.put(jobPart.getMachine(), jobPartList);
+	}
+	
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		int maxIndex = this.getMaxStartPlusCostIndex();
@@ -58,7 +79,7 @@ public class Result {
 		return sb.toString();
 	}
 
-	private int getMaxStartPlusCostIndex() {
+	public int getMaxStartPlusCostIndex() {
 		int maxIndex = 0;
 		for (List<JobPart> jobPartList : this.result.values()) {
 			int tempMaxIndex = 0;
