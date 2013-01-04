@@ -2,4 +2,5 @@
 .project
 .settings
 .checkstyle
+nonconfilcted-combinations.txt
 bin

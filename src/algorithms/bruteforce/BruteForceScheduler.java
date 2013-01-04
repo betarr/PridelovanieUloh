@@ -1,10 +1,16 @@
-package algorithms;
+package algorithms.bruteforce;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
+import java.util.StringTokenizer;
+
+import algorithms.Scheduler;
 
 import common.Configuration;
 import common.JobPart;
@@ -22,23 +28,18 @@ public class BruteForceScheduler extends Scheduler {
 	}
 	
 	public Result schedule() {
-		List<List<JobPart>> combinationsOfJobParts = Utils.getAllCombinationsOfJobPartByStartTime(this.sumOfCosts, this.config.getJobsParts());
+		List<List<JobPart>> combinationsOfJobParts = Utils.getAllNonConfilctedCombinationsOfJobPartByStartTime(this.sumOfCosts-1, this.config.getJobsParts());
 		
 		Map<Integer, List<JobPart>> bestCombinationByMachine = null;
 		int bestCombinationScore = -1;
 		
 		for (List<JobPart> listOfJobParts : combinationsOfJobParts) {
 			Map<Integer, List<JobPart>> combinationsOfJobPartByMachine = Utils.getJobPartListAsMapByMachine(listOfJobParts);
-			Map<Integer, List<JobPart>> combinationsOfJobPartByJob = Utils.getJobPartListAsMapByJob(listOfJobParts);
-			
-			//this.printOutCombination(combinationsOfJobPartByMachine, "Machine");
-			
-			if (isCombinationNotConflicted(combinationsOfJobPartByMachine, combinationsOfJobPartByJob)) {
-				int combinationScore = getScoreOfCombination(combinationsOfJobPartByMachine);
-				if (bestCombinationScore == -1 || combinationScore < bestCombinationScore) {
-					bestCombinationScore = combinationScore;
-					bestCombinationByMachine = combinationsOfJobPartByMachine;
-				}
+			int combinationScore = getScoreOfCombination(combinationsOfJobPartByMachine);
+			if (bestCombinationScore == -1
+					|| combinationScore < bestCombinationScore) {
+				bestCombinationScore = combinationScore;
+				bestCombinationByMachine = combinationsOfJobPartByMachine;
 			}
 		}
 		
@@ -46,6 +47,47 @@ public class BruteForceScheduler extends Scheduler {
 		return result;
 	}
 	
+	public Result scheduleFromFile(String fileName) {
+		List<JobPart> jobParts = this.config.getJobsParts();
+		Map<Integer, List<JobPart>> bestCombinationByMachine = null;
+		int bestCombinationScore = -1;
+		try {
+			Scanner scanner = new Scanner(new File(fileName));
+			while (scanner.hasNextLine()) {
+				String line = scanner.nextLine();
+				StringTokenizer st = new StringTokenizer(line, " ");
+				List<Integer> startTimes = new ArrayList<Integer>();
+				while (st.hasMoreTokens()) {
+					startTimes.add(Integer.valueOf(st.nextToken()));
+				}
+				
+				List<JobPart> combination = new ArrayList<JobPart>();
+				if (startTimes.size() != jobParts.size()) {
+					System.err.println("Wrong sizes of lists");
+				}
+				
+				for (int i = 0; i < jobParts.size(); i++) {
+					JobPart jp = jobParts.get(i);
+					JobPart newJp = new JobPart(jp);
+					newJp.setStartTime(startTimes.get(i));
+					combination.add(newJp);
+				}
+				
+				Map<Integer, List<JobPart>> combinationsOfJobPartByMachine = Utils.getJobPartListAsMapByMachine(combination);
+				int combinationScore = getScoreOfCombination(combinationsOfJobPartByMachine);
+				if (bestCombinationScore == -1 || combinationScore < bestCombinationScore) {
+					bestCombinationScore = combinationScore;
+					bestCombinationByMachine = combinationsOfJobPartByMachine;
+				}
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		Result result = transformCombinationToResult(bestCombinationByMachine);
+		return result;
+	}
+	
+	@SuppressWarnings("unused")
 	private void printOutCombination(
 			Map<Integer, List<JobPart>> combinationsOfJobPartByMachine, String type) {
 		StringBuilder sb = new StringBuilder();
@@ -61,34 +103,34 @@ public class BruteForceScheduler extends Scheduler {
 		System.out.println(sb.toString());
 	}
 
-	private boolean isCombinationNotConflicted(
+	public static boolean isCombinationNotConflicted(
 			Map<Integer, List<JobPart>> jobPartCombinationByMachine,
 			Map<Integer, List<JobPart>> jobPartCombinationByJob) {
-		boolean isConfictOnSomeMachine = isConflictOnSomeMachine(jobPartCombinationByMachine);
-		boolean isConfictOnJobs = isConflictOnJobs(jobPartCombinationByJob);
+		boolean isConfictOnSomeMachine = BruteForceScheduler.isConflictOnSomeMachine(jobPartCombinationByMachine);
+		boolean isConfictOnJobs = BruteForceScheduler.isConflictOnJobs(jobPartCombinationByJob);
 		return !isConfictOnSomeMachine && !isConfictOnJobs;
 	}
 	
-	private boolean isConflictOnSomeMachine(
+	private static boolean isConflictOnSomeMachine(
 			Map<Integer, List<JobPart>> jobPartCombinationByMachine) {
 		for (List<JobPart> jobPartList : jobPartCombinationByMachine.values()) {
-			if (isConflictOnMachine(jobPartList)) {
+			if (BruteForceScheduler.isConflictOnMachine(jobPartList)) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	private boolean isConflictOnMachine(List<JobPart> jobPartList) {
+	private static boolean isConflictOnMachine(List<JobPart> jobPartList) {
 		for (JobPart jp : jobPartList) {
-			if (isAnyOtherRunningExceptActualAtSameTime(jobPartList, jp)) {
+			if (BruteForceScheduler.isAnyOtherRunningExceptActualAtSameTime(jobPartList, jp)) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	private boolean isAnyOtherRunningExceptActualAtSameTime(
+	private static boolean isAnyOtherRunningExceptActualAtSameTime(
 			List<JobPart> jobPartList, JobPart actual) {
 		for (JobPart jp : jobPartList) {
 			if (!jp.equals(actual) && Utils.areJobPartsInTimeConflict(jp, actual)) {
@@ -98,26 +140,26 @@ public class BruteForceScheduler extends Scheduler {
 		return false;
 	}
 
-	private boolean isConflictOnJobs(Map<Integer, List<JobPart>> jobPartCombinationByJob) {
+	private static boolean isConflictOnJobs(Map<Integer, List<JobPart>> jobPartCombinationByJob) {
 		Set<Integer> jobsNumber = jobPartCombinationByJob.keySet();
 		for (Integer jobNumber : jobsNumber) {
-			if (areJobsInConflict(jobPartCombinationByJob.get(jobNumber))) {
+			if (BruteForceScheduler.areJobsInConflict(jobPartCombinationByJob.get(jobNumber))) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	private boolean areJobsInConflict(List<JobPart> jobPartsList) {
+	private static boolean areJobsInConflict(List<JobPart> jobPartsList) {
 		for (JobPart jp : jobPartsList) {
-			if (isJobPartInRightOrderToOthers(jobPartsList, jp)) {
+			if (BruteForceScheduler.isJobPartInRightOrderToOthers(jobPartsList, jp)) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	private boolean isJobPartInRightOrderToOthers(List<JobPart> jobPartsList,
+	private static boolean isJobPartInRightOrderToOthers(List<JobPart> jobPartsList,
 			JobPart jp) {
 		for (JobPart actual : jobPartsList) {
 			if (!jp.equals(actual) && Utils.areJobPartsInJobsOrderConflict(jp, actual)) {

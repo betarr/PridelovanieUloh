@@ -92,7 +92,7 @@ public class JobPart {
 		result = prime * result + index;
 		result = prime * result + job;
 		result = prime * result + machine;
-		result = prime * result + startTime;
+//		result = prime * result + startTime;
 		return result;
 	}
 
@@ -113,8 +113,8 @@ public class JobPart {
 			return false;
 		if (machine != other.machine)
 			return false;
-		if (startTime != other.startTime)
-			return false;
+//		if (startTime != other.startTime)
+//			return false;
 		return true;
 	}
 	

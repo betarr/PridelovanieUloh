@@ -1,19 +1,30 @@
-package algorithms;
+package algorithms.bruteforce;
+
+import static org.junit.Assert.assertEquals;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
 
+import algorithms.Scheduler;
+
 import common.Configuration;
 import common.Result;
 
-public class BruteForceTest {
+public class BruteForceSchedulerTest {
 
 	@Test
 	public void testSchedule() {
-		String configFileName = "testInput.txt";
+		List<List<Integer>> expectedResult = new ArrayList<List<Integer>>();
+		expectedResult.add(Arrays.asList(new Integer[]{2, 2, 2, null, null, 1, 1, null}));
+		expectedResult.add(Arrays.asList(new Integer[]{3, 3, 3, 3, 1, null, null, null}));
+		
+		String configFileName = "testForBruteForce.txt";
 		Configuration config;
 		try {
 			config = Configuration.loadFromFile(configFileName);
@@ -27,7 +38,8 @@ public class BruteForceTest {
 			return;
 		}
 		Scheduler bfScheduler = new BruteForceScheduler(config);
-		Result result = bfScheduler.schedule();
-		System.out.println(result);
+		Result actualResult = bfScheduler.schedule();
+		
+		assertEquals(expectedResult, actualResult.getResultInListForm());
 	}
 }

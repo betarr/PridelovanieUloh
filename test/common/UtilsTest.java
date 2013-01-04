@@ -11,22 +11,22 @@ import org.junit.Test;
 
 public class UtilsTest {
 
-	@Test
-	public void testGetAllCombinationsOfNumbers() {
-		List<List<Integer>> actualCombinations = new ArrayList<List<Integer>>();
-		Utils.getAllCombinationsOfNumbers(1, 3, 2, actualCombinations, new ArrayList<Integer>());
-		
-		List<List<Integer>> expectedCombinations = new ArrayList<List<Integer>>();
-		Integer[][] expectedCombinationsArray = new Integer[][] {
-				{1, 1}, {1, 2}, {1, 3},
-				{2, 1}, {2, 2}, {2, 3},
-				{3, 1}, {3, 2}, {3, 3}
-		};
-		for (int i = 0; i < expectedCombinationsArray.length; i++) {
-			expectedCombinations.add(Arrays.asList(expectedCombinationsArray[i]));
-		}
-		assertEquals(expectedCombinations, actualCombinations);
-	}
+//	@Test
+//	public void testGetAllCombinationsOfNumbers() {
+//		List<List<Integer>> actualCombinations = new ArrayList<List<Integer>>();
+//		Utils.getAllCombinationsOfNumbers(1, 3, 2, actualCombinations, new ArrayList<Integer>());
+//		
+//		List<List<Integer>> expectedCombinations = new ArrayList<List<Integer>>();
+//		Integer[][] expectedCombinationsArray = new Integer[][] {
+//				{1, 1}, {1, 2}, {1, 3},
+//				{2, 1}, {2, 2}, {2, 3},
+//				{3, 1}, {3, 2}, {3, 3}
+//		};
+//		for (int i = 0; i < expectedCombinationsArray.length; i++) {
+//			expectedCombinations.add(Arrays.asList(expectedCombinationsArray[i]));
+//		}
+//		assertEquals(expectedCombinations, actualCombinations);
+//	}
 	
 	@Test
 	public void testGetJobPartListAsMapByJob() {

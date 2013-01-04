@@ -1,5 +1,7 @@
 package common;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,6 +14,10 @@ public class Result {
 	 * Value -> list of job parts
 	 */
 	private Map<Integer, List<JobPart>> result;
+	
+	public Result() {
+		this.result = new HashMap<Integer, List<JobPart>>();
+	}
 
 	public Map<Integer, List<JobPart>> getResult() {
 		return result;
@@ -19,6 +25,22 @@ public class Result {
 
 	public void setResult(Map<Integer, List<JobPart>> result) {
 		this.result = result;
+	}
+	
+	public void addToResult(JobPart jobPart, List<JobPart> omega, List<Integer> rList) {
+		for (int i = 0; i < omega.size(); i++) {
+			if (omega.get(i).equals(jobPart)) {
+				jobPart.setStartTime(rList.get(i));
+				break;
+			}
+		}
+		
+		List<JobPart> jobPartList = this.result.get(jobPart.getMachine());
+		if (jobPartList == null) {
+			jobPartList = new ArrayList<JobPart>();
+		}
+		jobPartList.add(jobPart);
+		this.result.put(jobPart.getMachine(), jobPartList);
 	}
 	
 	public String toString() {
@@ -57,4 +79,26 @@ public class Result {
 		}
 		return "-";
 	}
+	
+	public List<List<Integer>> getResultInListForm() {
+		List<List<Integer>> result = new ArrayList<List<Integer>>();
+		Set<Integer> machinesIndexes = this.result.keySet();
+		int maxIndex = this.getMaxStartPlusCostIndex();
+		for (Integer machineIndex : machinesIndexes) {
+			List<JobPart> jobPartsList = this.result.get(machineIndex);
+			List<Integer> machineList = new ArrayList<Integer>();
+			for (int i = 0; i <= maxIndex; i++) {
+				String symbol = this.getSymbolForOutputBasedOnJobPartsList(jobPartsList, i);
+				try {
+					machineList.add(Integer.parseInt(symbol));
+				} catch (NumberFormatException e) {
+					machineList.add(null);
+				}
+			}
+			result.add(machineList);
+		}
+		return result;
+	}
+	
+	
 }
