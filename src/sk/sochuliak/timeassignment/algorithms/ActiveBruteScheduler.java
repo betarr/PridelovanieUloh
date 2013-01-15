@@ -99,6 +99,7 @@ public class ActiveBruteScheduler extends ActiveSchedulerAbstract {
 			}
 		}
 		
+		System.out.println("Pocet grafov: " + finalResults.size());
 		return this.getBestResultFromList(finalResults);
 	}
 

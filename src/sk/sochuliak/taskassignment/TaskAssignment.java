@@ -68,6 +68,7 @@ public class TaskAssignment {
 				boolean bruteCommand = argsList.contains("-brute");
 				boolean activeBrute = argsList.contains("-activebrute");
 				boolean active = argsList.contains("-active");
+				boolean toFileCommand = argsList.contains("-tofile");
 				
 				if (bruteCommand) {
 					TaskAssignment.runBruteScheduler(config);
@@ -78,8 +79,14 @@ public class TaskAssignment {
 				if (active) {
 					TaskAssignment.runActiveScheduler(config);
 				}
+				if (toFileCommand) {
+					int toFileCommandIndex = TaskAssignment.getIndexOfStringInList(argsList, "-tofile");
+					String fileName = argsList.get(toFileCommandIndex+1);
+					Configuration.saveTofile(config, fileName);
+					System.out.println("Configuration saved to " + fileName + ".");
+				}
 				
-				if (!bruteCommand && !activeBrute && !active) {
+				if (!bruteCommand && !activeBrute && !active &&!toFileCommand) {
 					TaskAssignment.printOutWrongText();
 				}
 			} else if (helpCommand) {
@@ -102,7 +109,8 @@ public class TaskAssignment {
 		sb.append("Using:").append(Utils.LINE_SEPARATOR)
 			.append(Utils.TAB).append("-config").append(Utils.LINE_SEPARATOR)
 			.append(Utils.TAB).append("[-generate numberOfMachines numOfJobs numOfJobParts maximalCost]").append(Utils.LINE_SEPARATOR)
-			.append(Utils.TAB).append("[-file fileName]").append(Utils.LINE_SEPARATOR).append(Utils.LINE_SEPARATOR)
+			.append(Utils.TAB).append("[-file fileName]").append(Utils.LINE_SEPARATOR)
+			.append(Utils.TAB).append("-brute || -activebrute || -active").append(Utils.LINE_SEPARATOR).append(Utils.LINE_SEPARATOR)
 			.append(Utils.TAB).append("-help");
 		
 		System.out.println(sb.toString());
@@ -137,6 +145,7 @@ public class TaskAssignment {
 		long endTime = Calendar.getInstance().getTimeInMillis();
 		System.out.println("Brute Force ended at " + new Date(endTime));
 		System.out.println("Brute Force took " + (endTime - startTime) + " ms");
+		System.out.println();
 	}
 	
 	private static void runActiveBruteScheduler(Configuration config) {
@@ -150,6 +159,7 @@ public class TaskAssignment {
 		long endTime = Calendar.getInstance().getTimeInMillis();
 		System.out.println("Active Brute Force ended at " + new Date(endTime));
 		System.out.println("Active Brute Force took " + (endTime - startTime) + " ms");
+		System.out.println();
 	}
 
 	private static void runActiveScheduler(Configuration config) {
@@ -163,6 +173,7 @@ public class TaskAssignment {
 		long endTime = Calendar.getInstance().getTimeInMillis();
 		System.out.println("Active ended at " + new Date(endTime));
 		System.out.println("Active took " + (endTime - startTime) + " ms");
+		System.out.println();
 	}
 
 }

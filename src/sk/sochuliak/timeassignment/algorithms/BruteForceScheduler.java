@@ -28,6 +28,7 @@ public class BruteForceScheduler extends Scheduler {
 		this.sumOfCosts = this.config.getSumOfCosts();
 	}
 	
+	@Override
 	public Result schedule() {
 		List<List<JobPart>> combinationsOfJobParts = Utils.getAllNonConfilctedCombinationsOfJobPartByStartTime(this.sumOfCosts-1, this.config.getJobsParts());
 		
